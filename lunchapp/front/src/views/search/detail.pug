@@ -1,0 +1,31 @@
+extends ../layout.pug
+block content
+  .card
+    h2 추천 결과
+    p 요약: #{result.summary.pick_reason} / 날씨: #{result.summary.weather}
+  if result.restaurants && result.restaurants.length
+    .card
+      h3 식당
+      .grid
+        each r in result.restaurants
+          .card
+            h4= r.name
+            p= r.address
+            p 가격대: #{r.priceRange} · 거리: #{r.distanceM}m
+            a(href=r.link target="_blank") 지도/링크
+            p= r.reason
+  if result.cafes && result.cafes.length
+    .card
+      h3 카페
+      .grid
+        each c in result.cafes
+          .card
+            h4= c.name
+            p= c.address
+            p 가격대: #{c.priceRange} · 거리: #{c.distanceM}m
+            a(href=c.link target="_blank") 지도/링크
+            p= c.reason
+  .card
+    h3 원 검색
+    p 위치: #{search.query.location} / 기분: #{search.query.mood} / 예산: #{search.query.budget} / 동행: #{search.query.companions}
+

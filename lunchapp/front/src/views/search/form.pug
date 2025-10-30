@@ -1,0 +1,26 @@
+extends ../layout.pug
+block content
+  .card
+    h2 점심 추천 검색
+    if error
+      p.error= error
+    form(method="post", action="/search")
+      label 위치
+      input(type="text", name="location", placeholder="예: 서울 강남구", required)
+      label 기분
+      select(name="mood")
+        option(value="든든") 든든
+        option(value="가벼움") 가벼움
+        option(value="달달") 달달
+        option(value="건강") 건강
+      label 예산(원)
+      input(type="number", name="budget", placeholder="12000")
+      label 동행
+      select(name="companions")
+        option(value="혼밥") 혼밥
+        option(value="친구") 친구
+        option(value="직장동료") 직장동료
+        option(value="연인") 연인
+      br
+      button.btn(type="submit") 추천 받기
+

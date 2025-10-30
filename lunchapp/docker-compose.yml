@@ -1,0 +1,63 @@
+version: "3.9"
+
+name: lunch-app
+services:
+  mongo:
+    image: mongo:7
+    container_name: lunch_mongo
+    command: ["--bind_ip_all"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASS}
+    volumes:
+      - mongo_data:/data/db
+    networks: [app-net]
+    ports:
+      - "27017:27017"   # 필요 없으면 주석 처리
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --username ${MONGO_ROOT_USER} --password ${MONGO_ROOT_PASS} --host 127.0.0.1 --authenticationDatabase admin --quiet --eval 'db.runCommand({ping:1}).ok' | grep 1 || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+
+  back:
+    build: ./back
+    container_name: lunch_back
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      PORT: ${BACK_PORT}
+      NODE_ENV: production
+      MONGODB_URI: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASS}@mongo:27017/app?authSource=admin
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASS: ${ADMIN_PASS}
+    networks: [app-net]
+    ports:
+      - "${BACK_PORT}:${BACK_PORT}"
+
+  front:
+    build: ./front
+    container_name: lunch_front
+    depends_on:
+      back:
+        condition: service_started
+    environment:
+      PORT: ${FRONT_PORT}
+      NODE_ENV: production
+      BACKEND_BASE_URL: ${BACKEND_BASE_URL}
+      SESSION_SECRET: ${SESSION_SECRET_FRONT}
+      JWT_SECRET: ${JWT_SECRET}
+    networks: [app-net]
+    ports:
+      - "3001:${FRONT_PORT}"
+
+volumes:
+  mongo_data:
+
+networks:
+  app-net:
+    driver: bridge
+

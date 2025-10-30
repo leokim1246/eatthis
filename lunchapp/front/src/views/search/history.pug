@@ -1,0 +1,17 @@
+extends ../layout.pug
+block content
+  .card
+    h2 내 검색 기록
+    if !items.length
+      p 아직 기록이 없습니다.
+    else
+      .grid
+        each s in items
+          .card
+            p= new Date(s.createdAt).toLocaleString('ko-KR')
+            p 위치: #{s.query.location} / 기분: #{s.query.mood} / 예산: #{s.query.budget} / 동행: #{s.query.companions}
+            if s.recId
+              a.btn(href=`/results/${s._id}`) 결과 보기 
+            else
+              span 대기중
+
